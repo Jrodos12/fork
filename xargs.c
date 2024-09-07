@@ -4,41 +4,60 @@
 #include <unistd.h>
 #include <stdio.h>
 
-void xargs();
-void xargs()
+void xargs(char* comand);
+void xargs(char* comand)
 {
-
-	FILE *stream;
-    char *line = NULL;
-    size_t len = 0;
+	char *line = NULL;
+	size_t len = 0;
+	size_t n = 0;
+	//printf("recibi %s\n", comand);
 	int id  = fork();
+	
 	if (id == 0 )
 	{
-		// estoy en el hijo
-		xargs();
+		
+		char* strg[6] = {comand,0,0,0,0, NULL};
+		for (int i = 0; i < NARGS; i++)
+		{
+			n = getline(&strg[i+1], &len,stdin);
+			strg[i+1][n-1] = '\0'; 
+		}
+		execvp(comand, strg);
+	}
+	else
+	{
+		wait();
+		xargs(comand);
 	}
 }
 
 int
 main(int argc, char *argv[])
 {
-	printf("recibi %s\n", argv[1]);
+	//printf("recibi %s\n", argv[1]);
     char *line = NULL;
     size_t len = 0;
+	size_t n = 0;
+	/*
 	int id  = fork();
 	
 	if (id == 0 )
 	{
 		//xargs();
-		execvp(argv[1], argv+1);
+		//execvp(argv[1], argv+1);
 	}
 	else
 	{
 		wait();
-		while(getline(&line, &len,stdin) != -1)
+		char* strg[6] = {argv[1],0,0,0,0, NULL};
+		for (int i = 0; i < NARGS; i++)
 		{
-			printf("hola %s", line);
+			n = getline(&strg[i+1], &len,stdin);
+			strg[i+1][n-1] = '\0'; 
 		}
+		execvp(argv[1], strg);
 	}
+	*/
+	xargs(argv[1]);
 	return 0;
 }
