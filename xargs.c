@@ -29,7 +29,6 @@ main(int argc, char *argv[])
 	
 	if (id == 0 )
 	{
-		// estoy en el hijo
 		//xargs();
 		execvp(argv[1], argv+1);
 	}
@@ -41,11 +40,5 @@ main(int argc, char *argv[])
 			printf("hola %s", line);
 		}
 	}
-	
-	
-	
-
-	
-	
 	return 0;
 }
