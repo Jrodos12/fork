@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <sys/wait.h>
 
 void filter(int fds_read, int n);
 
@@ -16,6 +16,13 @@ void filter(int fds_read,int  n)
 	}
 	int fds_write[2];
 	int r = pipe(fds_write);
+	if (r < 0)
+	{
+		printf("Error creacion del pipe\n");
+		exit(-1);
+	}
+	
+	int wstatus;
 	printf("primo %d\n", primo);
 	int id = fork();
 
@@ -36,13 +43,17 @@ void filter(int fds_read,int  n)
 		{
 			if (num % primo != 0)
 			{
-				write(fds_write[1], &num, sizeof(num));
+				if ( write(fds_write[1], &num, sizeof(num)) < 0)
+				{
+					printf("Error de escritura\n");
+					exit(-1);
+				}
 			}
 			
 		}
 		close(fds_write[1]);
 		close(fds_read);
-		wait();
+		wait(&wstatus);
 		
 	}
 	
@@ -52,11 +63,22 @@ void filter(int fds_read,int  n)
 
 int main(int argc, char *argv[])
 {
+	if (argc < 1)
+	{
+		printf("Error de entrada no se ingreso numero\n");
+		return-1;
+	}
+	
 	int fds_write[2];
 	int r = pipe(fds_write);
+	if (r < 0)
+	{
+		printf("Error al crear pipe\n");
+		exit(-1);
+	}
+	
 	int n = atoi(argv[1]);
-	int primo = 2 ;
-
+	int wstatus;
 	int id = fork();
 
 	if (id == 0)
@@ -71,11 +93,16 @@ int main(int argc, char *argv[])
 		close(fds_write[0]);
 		for (int i = 2; i <= n; i++)
 		{
-			write(fds_write[1], &i, sizeof(i));
+			if ( write(fds_write[1], &i, sizeof(i)) < 0)
+			{
+				printf("Error de escritura\n");
+				exit(-1);
+			}
+			
 			
 		}
 		close(fds_write[1]);
-		wait();
+		wait(&wstatus);
 	}
 	return 0;
 
